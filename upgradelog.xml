@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type='text/xsl' href='_UpgradeReport_Files/UpgradeReport.xslt'?><UpgradeLog>
+<Properties><Property Name="Solution" Value="PDSAuth">
+</Property><Property Name="Solution File" Value="\\bobst.lib\Data\Personal\Users\ba36\Desktop\PDSAuth-64\PDSAuth.sln">
+</Property><Property Name="Date" Value="Wednesday, December 07, 2011">
+</Property><Property Name="Time" Value="15:01 PM">
+</Property></Properties><Event ErrorLevel="0" Project="PDSAuth" Source="PDSAuth\PDSAuth.vcproj" Description="Converting project file '\\bobst.lib\Data\Personal\Users\ba36\Desktop\PDSAuth-64\PDSAuth\PDSAuth.vcproj'.">
+</Event><Event ErrorLevel="1" Project="PDSAuth" Source="PDSAuth\PDSAuth.vcproj" Description="VCWebServiceProxyGeneratorTool is no longer supported. The tool has been removed from your project settings.">
+</Event><Event ErrorLevel="1" Project="PDSAuth" Source="PDSAuth\PDSAuth.vcproj" Description="MSB8012: $(TargetPath) ('\\bobst.lib\Data\Personal\Users\ba36\Desktop\PDSAuth-64\PDSAuth\Release\PDSAuth.dll') does not match the Linker's OutputFile property value 'Release\PDSAuth.dll' ('\\bobst.lib\Data\Personal\Users\ba36\Desktop\PDSAuth-64\Release\PDSAuth.dll') in project configuration 'Release|Win32'. This may cause your project to build incorrectly. To correct this, please make sure that $(TargetPath) property value matches the value specified in %(Link.OutputFile).">
+</Event><Event ErrorLevel="0" Project="PDSAuth" Source="PDSAuth\PDSAuth.vcproj" Description="Done converting to new project file '\\bobst.lib\Data\Personal\Users\ba36\Desktop\PDSAuth-64\PDSAuth\PDSAuth.vcxproj'.">
+</Event><Event ErrorLevel="3" Project="PDSAuth" Source="PDSAuth\PDSAuth.vcproj" Description="Converted">
+</Event><Event ErrorLevel="0" Project="" Source="PDSAuth.sln" Description="Solution converted successfully">
+</Event><Event ErrorLevel="3" Project="" Source="PDSAuth.sln" Description="Converted">
+</Event></UpgradeLog>

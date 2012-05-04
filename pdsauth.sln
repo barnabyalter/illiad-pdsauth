@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PDSAuth", "PDSAuth\PDSAuth.vcxproj", "{FD79D6CC-09E0-4222-8FE0-EB1BFD615B18}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "PDSAuth Installer", "PDSAuth Installer\PDSAuth Installer.vdproj", "{9B5E3A2C-8972-4A32-98C6-1CA32F97FB66}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FD79D6CC-09E0-4222-8FE0-EB1BFD615B18}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FD79D6CC-09E0-4222-8FE0-EB1BFD615B18}.Debug|Win32.Build.0 = Debug|Win32
+		{FD79D6CC-09E0-4222-8FE0-EB1BFD615B18}.Release|Win32.ActiveCfg = Release|Win32
+		{FD79D6CC-09E0-4222-8FE0-EB1BFD615B18}.Release|Win32.Build.0 = Release|Win32
+		{9B5E3A2C-8972-4A32-98C6-1CA32F97FB66}.Debug|Win32.ActiveCfg = Debug
+		{9B5E3A2C-8972-4A32-98C6-1CA32F97FB66}.Release|Win32.ActiveCfg = Release
+		{9B5E3A2C-8972-4A32-98C6-1CA32F97FB66}.Release|Win32.Build.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

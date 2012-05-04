@@ -1,0 +1,5 @@
+LIBRARY	PDSAuth
+
+EXPORTS
+   HttpFilterProc
+   GetFilterVersion
