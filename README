@@ -9,3 +9,5 @@ https://confluence.ucdavis.edu/confluence/display/IETP/CAS+ISAPI+Client
 * PDSAuth Installer - msi for installing the ISAPI filter
 
 This application has been shown to work in Windows 2008 64-bit environments with IIS 7.5
+
+The included file ILLiadPDSAuthDocumentation.pdf documents the logic, installation and troubleshooting.
