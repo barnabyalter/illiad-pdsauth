@@ -149,9 +149,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:PDS ISAPI Authentication Filter"
+        "ProductName" = "8:PDSAuth ISAPI Filter"
         "ProductCode" = "8:{652A1297-825E-4713-A64D-8D033953E5C5}"
-        "PackageCode" = "8:{78555B33-F41E-434D-A166-7FD915C0737B}"
+        "PackageCode" = "8:{D861092C-987E-435C-B830-FF5660284E0C}"
         "UpgradeCode" = "8:{B08EF2AF-EAC1-4D90-9399-92A70F4A9C38}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -166,7 +166,7 @@
         "Subject" = "8:"
         "ARPCONTACT" = "8:New York University"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:PDS ISAPI Authentication Filter Installer"
+        "ARPCOMMENTS" = "8:PDSAuth ISAPI Filter Installer"
         "ARPURLINFOABOUT" = "8:"
         "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:0"
@@ -1599,7 +1599,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C5A487D6366F49D2B1F636A2B7BF486A"
             {
-            "SourcePath" = "8:\\\\bobst.lib\\Data\\Personal\\Users\\ba36\\Desktop\\PDSAuth-64\\PDSAuth\\Release\\PDSAuth.dll"
+            "SourcePath" = "8:..\\PDSAuth\\Release\\PDSAuth.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_1A2CC13DB445449B875FF688196D670C"

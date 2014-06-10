@@ -4,8 +4,14 @@
 #include "atlrx.h"
 #include "Logging.h"
 
+// Windows 64-bit automatically installs 32-bit applications with the WOW6432Node Registry path
 #define PDSAUTH_REGISTRY_KEY			"SOFTWARE\\Wow6432Node\\PDSAuth"
 #define PDSAUTH_PATRON_STATUS_KEY		"SOFTWARE\\Wow6432Node\\PDSAuth\\PatronStatuses"
+
+/*
+#define PDSAUTH_REGISTRY_KEY			"SOFTWARE\\PDSAuth"
+#define PDSAUTH_PATRON_STATUS_KEY		"SOFTWAREde\\PDSAuth\\PatronStatuses"
+*/
 
 extern char* pszLoginURL;
 extern char* pszValidateURL;

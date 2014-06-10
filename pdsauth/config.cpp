@@ -144,7 +144,8 @@ void FreeConfig()
 	int i = 0;
 	while(ppszPatronStatuses[i] != NULL)
 	{
-		delete ppszPatronStatuses[i];
+		if (ppszPatronStatuses[i] != NULL)
+			delete ppszPatronStatuses[i];
 		i++;
 	}
 

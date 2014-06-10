@@ -9,12 +9,12 @@ bool InitializeEncryption()
 	// Attempt to acquire a handle to the default key container.
 	if (!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, 0))
 	{
-			// Some sort of error occured, create default key container.
-			if (!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
-			{
-				LogEvent(PDS_ERROR,"InitializeEncryption: The PDSAuth filter could not acquire an encryption context.",NULL);
-				return false;
-			}
+		// Some sort of error occured, create default key container.
+		if (!CryptAcquireContext(&hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_NEWKEYSET))
+		{
+			LogEvent(PDS_ERROR,"InitializeEncryption: The PDSAuth filter could not acquire an encryption context.",(char *)GetLastError());
+			return false;
+		}
 	}
 
 	// Create an RC2 encryption key
@@ -69,37 +69,45 @@ char* GenerateCookie(char* pszUser)
 	if (!CryptEncrypt(hCryptKey, 0, TRUE, 0, pszEncrypted, &cbEncrypted, cbEncrypted))
 	{
 		LogEvent(PDS_ERROR,"GenerateCookie: The PDSAuth filter failed while trying to encrypt the cookie for the following user",pszUser);
-		delete pszEncrypted;
+		if (pszEncrypted != NULL)
+			delete pszEncrypted;	
 		return NULL;
 	}
 
 	cbCookie = AtlHexEncodeGetRequiredLength(cbEncrypted);
 	if(cbCookie > MAX_BUFFER_SIZE)
 	{
-		delete pszEncrypted;
+		if (pszEncrypted != NULL)
+			delete pszEncrypted;
 		return NULL;
 	}
-	pszCookie = new char[cbCookie];
+	pszCookie = new char[cbCookie+1];
 
 	// Convert to hex for storage in the cookie
 	if(!AtlHexEncode(pszEncrypted,cbEncrypted,pszCookie,(int*)&cbCookie))
 	{
 		LogEvent(PDS_ERROR,"GenerateCookie: The PDSAuth filter failed while trying to hex encode the cookie for the following user",pszUser);
-		delete pszEncrypted;
-		delete pszCookie;
+		if (pszEncrypted != NULL)
+			delete pszEncrypted;
+		if (pszCookie != NULL)
+			delete pszCookie;
 		return NULL;
 	}
 	//set the last character of the string to null
 	pszCookie[cbCookie] = '\0';
 
-	delete pszEncrypted;
+	if (pszEncrypted != NULL)
+		delete pszEncrypted;
 
 	return pszCookie;
 }
 
-
+//2011-12, NYU: this function was crashing on windows server 2008 r2 due to buffer overloads
+//				fixed by adding a necessary if var != NULL before each delete statement and made sure
+//				the null terminator was actually set to the last character allocated and not past it
 char* ValidateCookie(char* pszCookie)
 {
+
 	char* pszEncrypted = NULL;
 	char* pszUser = NULL;
 	char* pszContents = NULL;
@@ -115,29 +123,33 @@ char* ValidateCookie(char* pszCookie)
 
 	if(pszEncrypted != NULL)
 	{
-		
 		// size and create the decryption buffer
 		cbEncrypted = (DWORD)strlen(pszEncrypted);
 		cbDecrypted = AtlHexDecodeGetRequiredLength(cbEncrypted);
 		if(cbDecrypted > MAX_BUFFER_SIZE)
 			return NULL;
-		pszDecrypted = new unsigned char[cbDecrypted];
+		pszDecrypted = new unsigned char[cbDecrypted+1]; //2011-12, NYU: char size was too small 
+														 //				 for setting last character to null terminator below
 
 		// unencode the value
 		if(!AtlHexDecode(pszEncrypted,cbEncrypted,pszDecrypted,(int*)&cbDecrypted))
 		{
 			LogEvent(PDS_ERROR,"ValidateCookie: The PDSAuth filter failed while trying to hex-decode the cookie",pszEncrypted);
-			delete pszDecrypted;
+			if (pszDecrypted != NULL)
+				delete pszDecrypted;
 			return NULL;
 		}
 		//set the last character of the string to null
+		//2011-12, NYU: was setting the null terminator to the character 
+		//				after the last character allocated in memory, causing crash. fixed by above enhancement
 		pszDecrypted[cbDecrypted] = '\0';
 
 		// decrypt it
 		if (!CryptDecrypt(hCryptKey, 0, TRUE, 0, pszDecrypted, &cbDecrypted))
 		{
 			LogEvent(PDS_ERROR,"ValidateCookie: The PDSAuth filter failed while trying to decrypt the cookie",(char*)pszDecrypted);
-			delete pszDecrypted;
+			if (pszDecrypted != NULL)
+				delete pszDecrypted;
 			return NULL;
 		}
 
@@ -145,16 +157,19 @@ char* ValidateCookie(char* pszCookie)
 		cbContents = cbDecrypted+1;
 		if(cbContents > MAX_BUFFER_SIZE)
 		{
-			delete pszDecrypted;
+			if (pszDecrypted != NULL)
+				delete pszDecrypted;
 			return NULL;
 		}
 		pszContents = new char[cbContents];
 		StringCchCopyEx(pszContents,cbContents,(char*)pszDecrypted,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
 
-		delete pszDecrypted;
+		if (pszDecrypted != NULL)
+			delete pszDecrypted;
 
 		// now check the second value to see if it matches the secret
 		pszSecret =  strstr(pszContents,"+");
+
 		if ( pszSecret != NULL )
 		{
 			pszSecret++;
@@ -166,7 +181,8 @@ char* ValidateCookie(char* pszCookie)
 				StringCchCopyEx(pszUser,cbUser,pszContents,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
 			}
 		}
-		delete pszContents;
+		if (pszDecrypted != NULL)
+			delete pszContents;
 	}
 	
 	return pszUser;

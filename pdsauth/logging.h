@@ -6,12 +6,14 @@
 
 #define LOG_MSG_SIZE		400
 #define EVENTLOG_REG_KEY	"SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\PDSAuth"
+// Windows 64-bit requires 32-bit modules to run in the SysWOW64 directory
 #define EVENTLOG_DLL_LOC	"%SystemRoot%\\SysWOW64\\inetsrv\\PDSAuth.dll"
+//#define EVENTLOG_DLL_LOC	"%SystemRoot%\\System32\\inetsrv\\PDSAuth.dll"
 
 /**
 * Writes an event to the system application log.
 * 
-* @param the pds log type (see messages.h)
+* @param the cas log type (see messages.h)
 * @param message part one (optional)
 * @param message part two (optional)
 */

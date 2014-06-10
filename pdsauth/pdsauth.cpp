@@ -45,11 +45,11 @@ BOOL WINAPI DllMain(HINSTANCE hInst, ULONG ulReason, LPVOID lpReserved)
 
 BOOL WINAPI GetFilterVersion(HTTP_FILTER_VERSION * pVer)
 {
-	pVer->dwFilterVersion = MAKELONG( 1, 0 );   // Version 0.1
+	pVer->dwFilterVersion = MAKELONG( 1, 0 );   // Version 1.0
 
 	//  Specify the types and order of notification
 	pVer->dwFlags = (SF_NOTIFY_PREPROC_HEADERS | SF_NOTIFY_ORDER_HIGH);
-	StringCchCopy(pVer->lpszFilterDesc,SF_MAX_FILTER_DESC_LEN+1,"PDSAuth, Version 0.1");
+	StringCchCopy(pVer->lpszFilterDesc,SF_MAX_FILTER_DESC_LEN+1,"PDSAuth, Version 1.0");
 
 	return TRUE;
 }
@@ -82,7 +82,7 @@ DWORD OnPreprocHeaders(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* 
 	//12-08, emh: added var for converting string
 	CString urlString(szURL);
 
-	// determine if the requested URL is a protecred url
+	// determine if the requested URL is a protected url
 	if(!pPPH->GetHeader( pCtxt, "url", pszURL, &cbURL ))
 	{
 		LogEvent(PDS_WARN,"The PDSAuth ISAPI could not read the url from the headers.",NULL);	
@@ -95,7 +95,6 @@ DWORD OnPreprocHeaders(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* 
 	{
 
 	char*	pszPDSSession = NULL;
-	char	pszPDSValURL[URL_BUFFER_SIZE];
 	char*	pszPDSHandle = NULL;
 	char*	pszRedirectURL = NULL;
 	char*	pszEncryptedCookie = NULL;
@@ -114,12 +113,9 @@ DWORD OnPreprocHeaders(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* 
 	// find out if the user cookie already exists
 	if(pszCookie != NULL)
 	{
-		char* pszUser = NULL;
-				
-		// decrypt the local authentication cookie
-		pszUser = ValidateCookie(pszCookie);
 
-		//LogEvent(PDS_DEBUG,"cookie is not null:",pszCookie);
+		// decrypt the local authentication cookie
+		char* pszUser = ValidateCookie(pszCookie);
 
 		// if the username was retrieved from the cookie
 		if (pszUser != NULL)
@@ -131,10 +127,11 @@ DWORD OnPreprocHeaders(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* 
 		// if we got here, the local cookie user is null
 		else
 		{
-			//LogEvent(PDS_DEBUG,"pszUser is NULL:",pszUser);
 			// delete cookie and try authenticating against PDS again
 			dwRet = RedirectWithCookieDeleted(pCtxt, pszRedirectURL);
-			//LogEvent(PDS_DEBUG,"we will redirect and delete the cookie",pszRedirectURL);
+			#ifdef _DEBUG
+				LogEvent(PDS_DEBUG,"We will redirect and delete the cookie: ",pszRedirectURL);
+			#endif
 		}
 
 	}
@@ -142,6 +139,8 @@ DWORD OnPreprocHeaders(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* 
 	// but a NULL local user cookie.. so attempt to set one
 	else if (pszPDSHandle != NULL) 
 	{		
+		char pszPDSValURL[URL_BUFFER_SIZE];
+
 		// create validation URL for PDS call
 		StringCchPrintfEx(pszPDSValURL,URL_BUFFER_SIZE,NULL,NULL,STRSAFE_FILL_BEHIND_NULL,
 			"%s%s",pszValidateURL,pszPDSHandle);
@@ -201,33 +200,43 @@ DWORD OnPreprocHeaders(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* 
 				{
 					// unable to generate the encrypted cookie
 					LogEvent(PDS_ERROR,"PDSAuth: The filter was unable to set an authentication cookie for the user:",pszUser);
-					delete pszUser;
-					delete pszStatus;
-					delete pszIllPermission;
-					delete pszCookie;
-					delete pszRedirectURL;
-					delete pszPDSHandle;
+					if (pszUser != NULL)
+						delete pszUser;
+					if (pszStatus != NULL)
+						delete pszStatus;
+					if (pszIllPermission != NULL)
+						delete pszIllPermission;
 					return SF_STATUS_REQ_ERROR;
 				}
 
-				delete pszEncryptedCookie;
+				if (pszEncryptedCookie != NULL)
+					delete pszEncryptedCookie;
 
 			} 
 			else 
 			{
 				//the patron is not valid and should be redirected to an access denied page
 				dwRet = RedirectToAccessDenied(pCtxt, pszAccessDenied);
+				#ifdef _DEBUG
+					LogEvent(PDS_DEBUG,"Redirecting to Access Denied page:",pszAccessDenied);
+				#endif
 			}
 
 		} else {
 			// there is a PDS handle, but it is invalid
 			// Redirect to login to get a valid cookie
 			dwRet = RedirectToLogin(pCtxt,pszRedirectURL);
+			#ifdef _DEBUG
+				LogEvent(PDS_DEBUG,"There is an invalid PDS handle; redirecting to login with redirect url:",pszRedirectURL);
+			#endif
 		}
 
-		delete pszUser;
-		delete pszStatus;
-		delete pszIllPermission;
+		if (pszUser != NULL)
+			delete pszUser;
+		if (pszStatus != NULL)
+			delete pszStatus;
+		if (pszIllPermission != NULL)
+			delete pszIllPermission;
 		
 	}
 	else
@@ -235,14 +244,10 @@ DWORD OnPreprocHeaders(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* 
 		// no cookie or pds session - first time auth
 		// failure: assemble and redirect to the PDS login URL
 		dwRet = RedirectToLogin(pCtxt,pszRedirectURL);
+		#ifdef _DEBUG
+			LogEvent(PDS_DEBUG,"There is no PDS handle or local auth cookie; redirecting to login with redirect url:",pszRedirectURL);
+		#endif
 	}
-
-	if (pszPDSHandle != NULL)
-		delete pszPDSHandle;
-	if (pszRedirectURL != NULL)
-		delete pszRedirectURL;
-	if (pszCookie != NULL)
-		delete pszCookie;
 
 	}
 
@@ -252,6 +257,7 @@ DWORD OnPreprocHeaders(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* 
 
 char* GetRedirectUrl(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pPPH)
 {
+
 	char	szBuf[URL_BUFFER_SIZE];
 	char*	pszBuf =	szBuf;
 	DWORD	cbBuf =		URL_BUFFER_SIZE;
@@ -259,24 +265,34 @@ char* GetRedirectUrl(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pP
 	char*	pszTicket = NULL;
 	bool	br =		false;
 	HRESULT	hr;
+	DWORD	dwReserved = 0;
+
 	//12-08, emh: added var for string-char conversion
-		CString urlString(szBuf);
+	CString urlString(szBuf);
 
 	// if we have set the Service URL in the registry, use that 
+	//2011-12, NYU: this section wasn't directing to Finished, it was being ignored.
+	//Commented out. not currently working. will revisit
+	/*
 	if( pszServiceURL != NULL )
 	{
 		// allocated the service URL buffer
 		if( strlen(pszServiceURL)+1 > MAX_BUFFER_SIZE)
 			goto Finished;
-		char* pszRet = new char[strlen(pszServiceURL)+1];
-		// and set the service URL
-		hr = StringCchCopyEx(pszRet,strlen(pszServiceURL)+1,pszServiceURL,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
-		if( FAILED( hr ) )
+		else {
+			pszRet = (char*)pCtxt->AllocMem(pCtxt,strlen(pszServiceURL)+1,dwReserved);
+			// and set the service URL
+			hr = StringCchCopyEx(pszRet,strlen(pszServiceURL)+1,pszServiceURL,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
+			pszRet[strlen(pszServiceURL)]='\0';
+		}
+		if( pszRet != NULL || FAILED( hr ) )
 			goto Finished;
-	}
+	}*/
 	
 	// set the buffer to the max url size
-	pszRet = new char[URL_BUFFER_SIZE];
+
+	//2011-12, NYU: changed new char[] allocation method to AllocMem which automatically deallocates at end of session
+	pszRet = (char*)pCtxt->AllocMem(pCtxt,URL_BUFFER_SIZE,dwReserved);
 
 	// determine if the request is https or not
 	if( !pCtxt->GetServerVariable( pCtxt, "HTTPS", pszBuf, &cbBuf ) )
@@ -315,6 +331,8 @@ char* GetRedirectUrl(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pP
 
 	//12-08, emh: add - ENCODE pszRet since it will be the url parameter
 	urlString = pszRet;
+	//2011-12, NYU: make sure urlString is null terminated, otherwise buffer overload
+	urlString.AppendChar('\0');
 	if (urlString.Find("?") !=-1)
 	{
 		urlString.Replace("?","%3F");
@@ -322,11 +340,15 @@ char* GetRedirectUrl(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pP
 		urlString.Replace("&","%26");
 		urlString.Replace("/","%2F");
 		urlString.Replace(":","%3A");
-		//put cstring back into char *
-		char *psznewUrl = strdup(urlString);
-		// and set the encoded service URL
-		hr = StringCchCopyEx(pszRet,strlen(psznewUrl)+1,psznewUrl,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
-		LocalFree(psznewUrl);
+		//2011-12, NYU: removed intermediary variables for memory sake and used CString specific size and buffer methods
+		if(urlString.GetLength() < URL_BUFFER_SIZE) {
+			hr = StringCchCopyEx(pszRet,urlString.GetLength(),urlString.GetBuffer(),NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
+			//2011-12, NYU: make sure pszRet is null terminated
+			pszRet[urlString.GetLength()]='\0';
+		} else {
+			goto Finished;
+		}
+
 		if( FAILED( hr ) )
 			goto Finished;
 	}
@@ -339,10 +361,10 @@ Finished:
 	if( !br || FAILED( hr ) )
 	{
 		LogEvent(PDS_ERROR,"GetRedirectUrl: The PDSAuth filter was unable to assemble a redirect url for the request: ",pszRet);
-		delete pszRet;
 		pszRet = NULL;
 	}
-				
+
+			
 	return pszRet;
 }
 
@@ -353,6 +375,7 @@ char* GetPDSCookie(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pPPH
 	DWORD	cbBuf = URL_BUFFER_SIZE;
 	char*	pszCookie = NULL;
 	char*	pszRet = NULL;
+	DWORD	dwReserved = 0;
 
 	//check for a querystring
 	if( !pPPH->GetHeader(pCtxt, "Cookie:", pszBuf, &cbBuf) )
@@ -376,10 +399,10 @@ char* GetPDSCookie(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pPPH
 			cbCookie = (DWORD)strlen(pszCookie)+1 - (DWORD)strlen(pszCookieEnd);
 		}
 
-		pszRet = new char[cbCookie];
+		//2011-12, NYU: changed new char[] allocation method to AllocMem which automatically deallocates at end of session 
+		pszRet = (char*)pCtxt->AllocMem(pCtxt, cbCookie, dwReserved);
 		if( FAILED( StringCchCopyNEx(pszRet,cbCookie,pszCookie+strlen(pszPDSCookie)+1,cbCookie-(strlen(pszPDSCookie)+1)-1,NULL,NULL,STRSAFE_FILL_BEHIND_NULL) ) )
 		{
-			delete pszRet;
 			pszRet = NULL;
 		}
 	}
@@ -394,6 +417,7 @@ char* GetLocalAuthCookie(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS
 	DWORD	cbBuf = URL_BUFFER_SIZE;
 	char*	pszCookie = NULL;
 	char*	pszRet = NULL;
+	DWORD	dwReserved = 0;
 
 	// check for a querystring
 	if( !pPPH->GetHeader(pCtxt, "Cookie:", pszBuf, &cbBuf) )
@@ -417,10 +441,10 @@ char* GetLocalAuthCookie(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS
 			cbCookie = (DWORD)strlen(pszCookie)+1 - (DWORD)strlen(pszCookieEnd);
 		}
 
-		pszRet = new char[cbCookie];
+		//2011-12, NYU: changed new char[] allocation method to AllocMem which automatically deallocates at end of session 
+		pszRet = (char*)pCtxt->AllocMem(pCtxt,cbCookie,dwReserved);
 		if( FAILED( StringCchCopyNEx(pszRet,cbCookie,pszCookie,cbCookie-1,NULL,NULL,STRSAFE_FILL_BEHIND_NULL) ) )
 		{
-			delete pszRet;
 			pszRet = NULL;
 		}
 	}
@@ -450,16 +474,13 @@ DWORD RedirectToLogin(HTTP_FILTER_CONTEXT* pCtxt, char* pszRedirectURL)
 
 DWORD RedirectToAccessDenied(HTTP_FILTER_CONTEXT* pCtxt, char* accessDeniedURL)
 {
-	//12-08, emh: this routine redirects the user to login - is called
-	//			  upon first authentication and also if a userid/netid isn't returned
-	//			  from PDS
 	char  szRedirectHeader[MAX_BUFFER_SIZE];
 
-	// assemble the login redirection header 
+	// assemble the redirection header 
 	StringCchPrintfEx(szRedirectHeader,MAX_BUFFER_SIZE,NULL,NULL,STRSAFE_FILL_BEHIND_NULL,
 						"Location: %s\r\n",accessDeniedURL);
 
-	// send a 302 redirect header to the client with the login url
+	// send a 302 redirect header to the client with the url
 	if(!pCtxt->ServerSupportFunction( pCtxt, SF_REQ_SEND_RESPONSE_HEADER, (PVOID)"302 Redirection", (DWORD)szRedirectHeader, 0 ))
 	{
 		LogEvent(PDS_ERROR,"RedirectToAccessDenied: The PDSAuth filter was unable to send an access denied redirection header to the browser.",NULL);
@@ -475,8 +496,8 @@ DWORD RedirectWithCookie(HTTP_FILTER_CONTEXT* pCtxt, char* pszRedirectURL, char*
 	__time64_t ltime;
 	struct tm *gmt;
 
-		//12-08, emh: UNESCAPE the pszRedirectURL just for this kind of redirect
-		UrlUnescapeInPlace(pszRedirectURL,URL_DONT_UNESCAPE_EXTRA_INFO);
+	//12-08, emh: UNESCAPE the pszRedirectURL just for this kind of redirect
+	UrlUnescapeInPlace(pszRedirectURL,URL_DONT_UNESCAPE_EXTRA_INFO);
 
 	// set an expires parameter for the cookie if the Cookie Timeout is > 0
 	if(dwCookieTimeout > 0){
@@ -552,7 +573,15 @@ DWORD SetAuthHeader(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pPP
 		{
 			LogEvent(PDS_ERROR,"SetAuthHeader: The PDSAuth filter was unable to set the PDSIlliadUser authentication header.",NULL);
 			return SF_STATUS_REQ_ERROR;		
+		} else {
+			#ifdef _DEBUG
+				LogEvent(PDS_DEBUG, "SetAuthHeader: The PDSAuth filter added the header successfully and will return SF_STATUS_REQ_NEXT_NOTIFICATION.",NULL);
+			#endif
 		}
+	} else {
+		#ifdef _DEBUG
+			LogEvent(PDS_DEBUG, "SetAuthHeader: The PDSAuth filter found the PDSIlliadUser authentication header.",NULL);
+		#endif
 	}
 
 	return SF_STATUS_REQ_NEXT_NOTIFICATION;

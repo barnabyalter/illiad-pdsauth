@@ -12,6 +12,10 @@
 #include "PDS.h"
 #include "Cookie.h"
 
+/*
+#define DEBUG
+*/
+
 /**
 *	Constant Definitions
 *	These definitions should be the same across either all instances, or all client instances 
