@@ -1,4 +1,4 @@
-# PDSAuth-64 ISAPI Filter
+# ILLiad/PDS ISAPI Filter Authentication
 
 This project contains the source code and the installer for an ISAPI filter which uses PDS to authenticate users in ILLiad.
 
