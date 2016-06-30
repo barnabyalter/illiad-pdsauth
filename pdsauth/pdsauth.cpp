@@ -313,8 +313,16 @@ char* GetRedirectUrl(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pP
 
 	// append the server name
 	cbBuf = URL_BUFFER_SIZE;
-	if( !pCtxt->GetServerVariable( pCtxt, "SERVER_NAME", pszBuf, &cbBuf ) )
+	if( pszServiceURL != NULL )
+	{
+		hr = StringCchCopyEx(pszBuf,URL_BUFFER_SIZE,pszServiceURL,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
+		if( FAILED( hr ) )
+			goto Finished;
+	}
+	else if ( !pCtxt->GetServerVariable( pCtxt, "SERVER_NAME", pszBuf, &cbBuf ) )
+	{
 		goto Finished;
+	}
 	hr = StringCchCatEx(pszRet,URL_BUFFER_SIZE,pszBuf,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
 	if( FAILED( hr ) )
 		goto Finished;

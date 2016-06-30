@@ -1,0 +1,46 @@
+﻿Build started 6/30/2016 2:31:13 PM.
+Project "E:\ILLiadPDSAuth\PDSAuth-64-WORKING_RELEASE\PDSAuth\PDSAuth.vcxproj" on node 2 (rebuild target(s)).
+InitializeBuildStatus:
+  Touching "Release\PDSAuth.unsuccessfulbuild".
+ClCompile:
+  c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /O2 /Oy- /D WIN32 /D NDEBUG /D _WINDOWS /D _USRDLL /D PDSAUTH_EXPORTS /D _WINDLL /D _MBCS /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Config.cpp Cookie.cpp Logging.cpp PDS.cpp PDSAuth.cpp
+  Config.cpp
+  Cookie.cpp
+  Logging.cpp
+  PDS.cpp
+  PDSAuth.cpp
+c:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\cstringt.h(295): warning C4995: 'vsprintf': name was marked as #pragma deprecated
+c:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\cstringt.h(667): warning C4995: 'vswprintf': name was marked as #pragma deprecated
+c:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\atlstr.h(476): warning C4995: 'wvsprintfA': name was marked as #pragma deprecated
+c:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\atlstr.h(494): warning C4995: 'wvsprintfA': name was marked as #pragma deprecated
+c:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\atlstr.h(514): warning C4995: 'wvsprintfA': name was marked as #pragma deprecated
+c:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\atlstr.h(1021): warning C4995: 'wvsprintfW': name was marked as #pragma deprecated
+c:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\atlstr.h(1039): warning C4995: 'wvsprintfW': name was marked as #pragma deprecated
+c:\Program Files\Microsoft Visual Studio 10.0\VC\atlmfc\include\atlstr.h(1060): warning C4995: 'wvsprintfW': name was marked as #pragma deprecated
+PDSAuth.cpp(94): warning C4996: '_strlwr': This function or variable may be unsafe. Consider using _strlwr_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(164) : see declaration of '_strlwr'
+PDSAuth.cpp(171): warning C4996: '_strlwr': This function or variable may be unsafe. Consider using _strlwr_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(164) : see declaration of '_strlwr'
+PDSAuth.cpp(301): warning C4996: '_strlwr': This function or variable may be unsafe. Consider using _strlwr_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\Program Files\Microsoft Visual Studio 10.0\VC\include\string.h(164) : see declaration of '_strlwr'
+PDSAuth.cpp(515): warning C4996: '_gmtime64': This function or variable may be unsafe. Consider using _gmtime64_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+          c:\Program Files\Microsoft Visual Studio 10.0\VC\include\time.h(198) : see declaration of '_gmtime64'
+  Generating Code...
+Link:
+  c:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"Release\PDSAuth.dll" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /DEF:"PDSAuth.def" /MANIFEST /ManifestFile:"Release\PDSAuth.dll.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /PDB:"E:\ILLiadPDSAuth\PDSAuth-64-WORKING_RELEASE\PDSAuth\Release\PDSAuth.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /TLBID:1 /DYNAMICBASE:NO /FIXED:NO /NXCOMPAT /IMPLIB:"Release\PDSAuth.lib" /MACHINE:X86 /DLL Release\Config.obj
+  Release\Cookie.obj
+  Release\Logging.obj
+  Release\PDS.obj
+  Release\PDSAuth.obj
+     Creating library Release\PDSAuth.lib and object Release\PDSAuth.exp
+  PDSAuth.vcxproj -> E:\ILLiadPDSAuth\PDSAuth-64-WORKING_RELEASE\PDSAuth\Release\PDSAuth.dll
+Manifest:
+  C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"Release\PDSAuth.dll;#2" /manifest Release\PDSAuth.dll.intermediate.manifest
+FinalizeBuildStatus:
+  Deleting file "Release\PDSAuth.unsuccessfulbuild".
+  Touching "Release\PDSAuth.lastbuildstate".
+Done Building Project "E:\ILLiadPDSAuth\PDSAuth-64-WORKING_RELEASE\PDSAuth\PDSAuth.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:04.00
