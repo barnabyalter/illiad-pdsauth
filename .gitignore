@@ -1,2 +1,4 @@
 wiki/
 .DS_Store
+*.tlog
+*.log
