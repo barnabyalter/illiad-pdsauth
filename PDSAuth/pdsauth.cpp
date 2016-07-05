@@ -269,59 +269,42 @@ char* GetRedirectUrl(HTTP_FILTER_CONTEXT* pCtxt, HTTP_FILTER_PREPROC_HEADERS* pP
 
 	//12-08, emh: added var for string-char conversion
 	CString urlString(szBuf);
-
-	// if we have set the Service URL in the registry, use that 
-	//2011-12, NYU: this section wasn't directing to Finished, it was being ignored.
-	//Commented out. not currently working. will revisit
-	/*
-	if( pszServiceURL != NULL )
-	{
-		// allocated the service URL buffer
-		if( strlen(pszServiceURL)+1 > MAX_BUFFER_SIZE)
-			goto Finished;
-		else {
-			pszRet = (char*)pCtxt->AllocMem(pCtxt,strlen(pszServiceURL)+1,dwReserved);
-			// and set the service URL
-			hr = StringCchCopyEx(pszRet,strlen(pszServiceURL)+1,pszServiceURL,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
-			pszRet[strlen(pszServiceURL)]='\0';
-		}
-		if( pszRet != NULL || FAILED( hr ) )
-			goto Finished;
-	}*/
 	
 	// set the buffer to the max url size
 
 	//2011-12, NYU: changed new char[] allocation method to AllocMem which automatically deallocates at end of session
 	pszRet = (char*)pCtxt->AllocMem(pCtxt,URL_BUFFER_SIZE,dwReserved);
 
-	// determine if the request is https or not
-	if( !pCtxt->GetServerVariable( pCtxt, "HTTPS", pszBuf, &cbBuf ) )
-		goto Finished;
-
-	if( strcmp( _strlwr("on"), _strlwr(pszBuf) ) == 0 )
-	{
-		hr = StringCchCopyEx(pszRet,URL_BUFFER_SIZE,"https://",NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
-		if( FAILED( hr ) )
-			goto Finished;
-	}
-	else
-	{
-		hr = StringCchCopyEx(pszRet,URL_BUFFER_SIZE,"http://",NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
-		if( FAILED( hr ) )
-			goto Finished;
-	}
-
-	// append the server name
 	cbBuf = URL_BUFFER_SIZE;
+	// Get the SERVICE URL if it exists
 	if( pszServiceURL != NULL )
 	{
 		hr = StringCchCopyEx(pszBuf,URL_BUFFER_SIZE,pszServiceURL,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
 		if( FAILED( hr ) )
 			goto Finished;
 	}
-	else if ( !pCtxt->GetServerVariable( pCtxt, "SERVER_NAME", pszBuf, &cbBuf ) )
+	else 
 	{
-		goto Finished;
+		// determine if the request is https or not
+		if( !pCtxt->GetServerVariable( pCtxt, "HTTPS", pszBuf, &cbBuf ) )
+			goto Finished;
+
+		if( strcmp( _strlwr("on"), _strlwr(pszBuf) ) == 0 )
+		{
+			hr = StringCchCopyEx(pszRet,URL_BUFFER_SIZE,"https://",NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
+			if( FAILED( hr ) )
+				goto Finished;
+		}
+		else
+		{
+			hr = StringCchCopyEx(pszRet,URL_BUFFER_SIZE,"http://",NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
+			if( FAILED( hr ) )
+				goto Finished;
+		}
+
+		// Append the server name as a default
+		if ( !pCtxt->GetServerVariable( pCtxt, "SERVER_NAME", pszBuf, &cbBuf ) )
+			goto Finished;
 	}
 	hr = StringCchCatEx(pszRet,URL_BUFFER_SIZE,pszBuf,NULL,NULL,STRSAFE_FILL_BEHIND_NULL);
 	if( FAILED( hr ) )
